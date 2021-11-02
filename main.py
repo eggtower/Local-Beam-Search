@@ -66,7 +66,7 @@ def randomPoint():  # Determine the random point + Normalize the point for map
     return point;
 
 
-def thread(point, recursion=False):  # sub-thread for checking random point
+def thread(point):  # sub-thread for checking random point
     global Map;
     global LBS_ResultList;
     if(not Map[point.MapX][point.MapY]):
@@ -74,12 +74,11 @@ def thread(point, recursion=False):  # sub-thread for checking random point
         pointVal = Ans(point.X, point.Y);
         # add the local min point to list
         LBS_ResultList.append(pointVal);
-    if(recursion):
-        aroundMinRes = checkAround(point);
-        if(aroundMinRes is not None):
-            LBS_ResultList.append(aroundMinRes);
-            aroundMinPoint = Point(aroundMinRes.XY[0][0], aroundMinRes.XY[0][1]);
-            threading.Thread(target=thread(aroundMinPoint, True));
+    aroundMinRes = checkAround(point);
+    if(aroundMinRes is not None):
+        LBS_ResultList.append(aroundMinRes);
+        aroundMinPoint = Point(aroundMinRes.XY[0][0], aroundMinRes.XY[0][1]);
+        threading.Thread(target=thread(aroundMinPoint));
 
         
 def checkAround(point):  # check the target point's neighbors
@@ -115,7 +114,7 @@ def LocalBeamSearch(k, Map):
         while(Map[point.MapX][point.MapY]):
             point = randomPoint();
         # put the random point into sub-threads
-        threads.append(threading.Thread(target=thread(point, True)));
+        threads.append(threading.Thread(target=thread(point)));
         threads[i].start();
     
     for i in range(k):
